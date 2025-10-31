@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import assets from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -8,14 +8,17 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const { logout, onlineUsers } = useContext(AuthContext);
   const [input, setInput] = useState(false);
-  const { users, selectedUser, setSelectedUser, unseenMessages } =
+  const { users, selectedUser, setSelectedUser, unseenMessages, getUsers } =
     useContext(ChatContext);
 
   const filteredData = input
     ? users.filter((user) =>
-        user.fullName.toLowercase().includes(input.toLowercase())
+        user.fullName.toLowerCase().includes(input.toLowerCase())
       )
     : users;
+  useEffect(() => {
+    getUsers();
+  }, [onlineUsers]);
   return (
     <div
       className={`bg-[#8185B2]/10 h-full p-5 rounded-r-xl overflow-y-scroll text-white ${

@@ -1,6 +1,7 @@
 import Message from "../models/Message.js";
 import User from "../models/User.js";
 import { userSocketMap } from "../server.js";
+import { io } from "../server.js";
 
 export const getusersForSidebar = async (req, res) => {
   try {
@@ -57,7 +58,7 @@ export const getMessages = async (req, res) => {
     });
 
     await Message.updateMany(
-      { senderId: selectedUserId, receiverId: myid },
+      { senderId: selectedUserId, receiverId: myId },
       { seen: true }
     );
     res.json({ success: true, messages });

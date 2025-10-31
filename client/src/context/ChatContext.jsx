@@ -11,16 +11,13 @@ export const ChatProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [unseenMessages, setUnseenMessages] = useState({});
-  const { socket, axios, token } = useContext(AuthContext);
+  const { socket, axios, authUser } = useContext(AuthContext);
   const getUsers = async () => {
     try {
       const { data } = await axios.get("/api/message/users");
 
       if (data.success) {
-        console.log(data);
         setUsers(data.users);
-      } else {
-        toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);
@@ -46,8 +43,9 @@ export const ChatProvider = ({ children }) => {
         `/api/message/send/${selectedUser._id}`,
         messageData
       );
+      console.log("Response from backend:", data);
       if (data.success) {
-        setMessages((prevMessages) => [...prevMessages, data.newMessage]);
+        setMessages((prevMessages) => [...prevMessages, data.message]);
       }
     } catch (error) {
       toast.error(error.message);
@@ -79,12 +77,6 @@ export const ChatProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (token) {
-      getUsers();
-    }
-  }, [token]);
-
-  useEffect(() => {
     subscribeToMessages();
     return () => unsubscribeFromMessages();
   }, [socket, selectedUser]);
@@ -94,11 +86,11 @@ export const ChatProvider = ({ children }) => {
     messages,
     selectedUser,
     getUsers,
-    setMessages,
     sendMessage,
     setSelectedUser,
     unseenMessages,
     setUnseenMessages,
+    getMessages,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

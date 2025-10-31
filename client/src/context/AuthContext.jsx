@@ -25,6 +25,9 @@ export const AuthProvider = ({ children }) => {
       if (data.success) {
         setAuthUser(data.user);
         connectSocket(data.user);
+        console.log(authUser);
+      } else {
+        toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);
