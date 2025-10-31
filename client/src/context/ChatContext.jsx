@@ -15,18 +15,15 @@ export const ChatProvider = ({ children }) => {
   const getUsers = async () => {
     try {
       const { data } = await axios.get("/api/message/users");
-      console.log("fetching users");
+
       if (data.success) {
         console.log(data);
         setUsers(data.users);
-        setUnseenMessages(data.unseenMessages);
       } else {
         toast.error(data.message);
-        console.log("error loading users");
       }
     } catch (error) {
       toast.error(error.message);
-      console.log("error loading users");
     }
   };
   //fuunction to get messages for selected user
@@ -83,7 +80,6 @@ export const ChatProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      console.log("Token detected in ChatContext ✅", token);
       getUsers();
     }
   }, [token]);

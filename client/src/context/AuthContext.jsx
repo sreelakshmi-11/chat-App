@@ -16,9 +16,9 @@ export const AuthProvider = ({ children }) => {
   const [authUser, setAuthUser] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [socket, setSocket] = useState(null);
+
   const navigate = useNavigate();
   //checking if user is authenticated and if so,set the user data andconnect the socket
-
   const checkAuth = async () => {
     try {
       const { data } = await axios.post("/api/auth/check");
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
       if (data.success) {
         setAuthUser(data.userData);
         connectSocket(data.userData);
-        axios.defaults.headers.common["authorization"] = data.token;
+        axios.defaults.headers.common["authorization"] = `Bearer ${data.token}`;
         setToken(data.token);
         localStorage.setItem("token", data.token);
         toast.success(data.message);
@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setAuthUser(null);
     setOnlineUsers([]);
-    axios.defaults.headers.common["token"] = null;
+    axios.defaults.headers.common["authorization"] = null;
     toast.success("Logged out Successfully");
     socket.disconnect();
     navigate("/login");
@@ -97,12 +97,25 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  // useEffect(() => {
+  //   if (token) {
+  //     console.log("AuthContext token:", token);
+  //     axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
+  //     checkAuth();
+  //   } else {
+  //     setLoading(false);
+  //   }
+  // }, [token]);
   useEffect(() => {
     if (token) {
-      console.log("AuthContext token:", token);
-      axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } else {
+      delete axios.defaults.headers.common["Authorization"];
     }
-    checkAuth();
+  }, [token]);
+
+  useEffect(() => {
+    if (token) checkAuth();
   }, []);
 
   const value = {
@@ -115,5 +128,6 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateProfile,
   };
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
