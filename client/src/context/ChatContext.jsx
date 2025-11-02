@@ -18,6 +18,7 @@ export const ChatProvider = ({ children }) => {
 
       if (data.success) {
         setUsers(data.users);
+        console.log(data.users);
       }
     } catch (error) {
       toast.error(error.message);
@@ -45,7 +46,7 @@ export const ChatProvider = ({ children }) => {
       );
       console.log("Response from backend:", data);
       if (data.success) {
-        setMessages((prevMessages) => [...prevMessages, data.message]);
+        setMessages((prevMessages) => [...prevMessages, data.newMessage]);
       }
     } catch (error) {
       toast.error(error.message);
@@ -73,7 +74,7 @@ export const ChatProvider = ({ children }) => {
 
   ///unsubscribe from messages for selected user
   const unsubscribeFromMessages = () => {
-    if (socket) socket.off("newMessage");
+    if (socket) socket.off("message");
   };
 
   useEffect(() => {

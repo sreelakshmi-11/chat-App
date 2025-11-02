@@ -21,11 +21,10 @@ export const AuthProvider = ({ children }) => {
   //checking if user is authenticated and if so,set the user data andconnect the socket
   const checkAuth = async () => {
     try {
-      const { data } = await axios.post("/api/auth/check");
+      const { data } = await axios.get("/api/auth/check");
       if (data.success) {
         setAuthUser(data.user);
         connectSocket(data.user);
-        console.log(authUser);
       } else {
         toast.error(data.message);
       }
@@ -119,7 +118,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) checkAuth();
-  }, []);
+  }, [token]);
 
   const value = {
     login,
