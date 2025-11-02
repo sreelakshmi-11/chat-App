@@ -5,15 +5,7 @@ import { io } from "../server.js";
 
 export const getusersForSidebar = async (req, res) => {
   try {
-    // const userId = req.user._id;
-    // const filteredUsers = await User.find({ _id: { $ne: userId } }).select(
-    //   "-password"
-    // );
-    console.log("✅ getusersForSidebar called");
-    console.log("req.user:", req.user);
-
     const userId = req.user._id;
-    console.log("Current userId:", userId);
 
     const filteredUsers = await User.find({ _id: { $ne: userId } }).select(
       "-password"
@@ -91,8 +83,8 @@ export const markMessageAsSeen = async (req, res) => {
 export const sendMessage = async (req, res) => {
   try {
     const { text, image } = req.body;
-    const senderId = req.params.id;
-    const receiverId = req.user._id;
+    const receiverId = req.params.id;
+    const senderId = req.user._id;
 
     let imageUrl;
     if (image) {
@@ -114,7 +106,7 @@ export const sendMessage = async (req, res) => {
 
     res.json({
       success: true,
-      message: newMessage,
+      newMessage: newMessage,
     });
   } catch (error) {
     return res.json({
