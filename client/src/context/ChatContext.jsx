@@ -11,14 +11,13 @@ export const ChatProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [unseenMessages, setUnseenMessages] = useState({});
-  const { socket, axios, authUser } = useContext(AuthContext);
+  const { socket, axios } = useContext(AuthContext);
   const getUsers = async () => {
     try {
       const { data } = await axios.get("/api/message/users");
 
       if (data.success) {
         setUsers(data.users);
-        console.log(data.users);
       }
     } catch (error) {
       toast.error(error.message);
@@ -44,7 +43,7 @@ export const ChatProvider = ({ children }) => {
         `/api/message/send/${selectedUser._id}`,
         messageData
       );
-      console.log("Response from backend:", data);
+
       if (data.success) {
         setMessages((prevMessages) => [...prevMessages, data.newMessage]);
       }
@@ -53,35 +52,83 @@ export const ChatProvider = ({ children }) => {
     }
   };
 
-  //subscribe to messages for selected user
-  const subscribeToMessages = async () => {
-    if (!socket) return;
-    socket.on("newMessage", (newMessage) => {
-      if (selectedUser && newMessage.senderId === selectedUser._id) {
-        newMessage.seen = true;
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
-        axios.put(`/api/message/mark/${newMessage._id}`);
-      } else {
-        setUnseenMessages((prevUnseenMessages) => ({
-          ...prevUnseenMessages,
-          [newMessage.senderId]: prevUnseenMessages[newMessage.senderId]
-            ? prevUnseenMessages[newMessage.senderId] + 1
-            : 1,
-        }));
-      }
-    });
-  };
+  // //subscribe to messages for selected user
+  // const subscribeToMessages = async () => {
+  //   if (!socket) return;
+
+  //   socket.on("newMessage", (newMessage) => {
+  //     if (selectedUser && newMessage.senderId === selectedUser._id) {
+  //       newMessage.seen = true;
+  //       setMessages((prevMessages) => [...prevMessages, newMessage]);
+  //       axios.put(`/api/message/mark/${newMessage._id}`);
+  //     } else {
+  //       setUnseenMessages((prevUnseenMessages) => ({
+  //         ...prevUnseenMessages,
+  //         [newMessage.senderId]: prevUnseenMessages[newMessage.senderId]
+  //           ? prevUnseenMessages[newMessage.senderId] + 1
+  //           : 1,
+  //       }));
+  //     }
+  //   });
+  // };
 
   ///unsubscribe from messages for selected user
-  const unsubscribeFromMessages = () => {
-    if (socket) socket.off("message");
-  };
+  // const unsubscribeFromMessages = () => {
+  //   if (socket) socket.off("newMessage");
+  // };
+  // useEffect(() => {
+  //   if (!socket) return; // prevent null error
+
+  //   socket.on("connect", () => {
+  //     console.log("✅ Socket connected:", socket.id);
+  //   });
+
+  //   return () => socket.off("connect");
+  // }, [socket]);
+
+  // useEffect(() => {
+  //   subscribeToMessages();
+  //   return () => unsubscribeFromMessages();
+  // }, [socket, selectedUser]);
 
   useEffect(() => {
-    subscribeToMessages();
-    return () => unsubscribeFromMessages();
+    if (!socket) return;
+
+    const handleNewMessage = (newMessage) => {
+      console.log("📩 Received new message:", newMessage);
+
+      if (selectedUser && newMessage.senderId === selectedUser._id) {
+        newMessage.seen = true;
+        setMessages((prev) => [...prev, newMessage]);
+        axios.put(`/api/message/mark/${newMessage._id}`);
+      } else {
+        // ✅ Increase unseen count properly
+        setUnseenMessages((prev) => ({
+          ...prev,
+          [newMessage.senderId]: (prev[newMessage.senderId] || 0) + 1,
+        }));
+      }
+    };
+
+    socket.on("newMessage", handleNewMessage);
+
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
   }, [socket, selectedUser]);
 
+  useEffect(() => {
+    if (selectedUser) {
+      setUnseenMessages((prev) => ({
+        ...prev,
+        [selectedUser._id]: 0,
+      }));
+    }
+  }, [selectedUser]);
+
+  useEffect(() => {
+    console.log("Updated unseen messages:", unseenMessages);
+  }, [unseenMessages]);
   const value = {
     users,
     messages,

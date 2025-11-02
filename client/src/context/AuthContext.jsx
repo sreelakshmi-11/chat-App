@@ -97,17 +97,16 @@ export const AuthProvider = ({ children }) => {
     newSocket.on("getOnlineUsers", (userIds) => {
       setOnlineUsers(userIds);
     });
+
+    newSocket.on("connect", () => {
+      console.log("✅ Socket connected:", newSocket.id);
+    });
+
+    newSocket.on("disconnect", () => {
+      console.log("❌ Socket disconnected");
+    });
   };
 
-  // useEffect(() => {
-  //   if (token) {
-  //     console.log("AuthContext token:", token);
-  //     axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
-  //     checkAuth();
-  //   } else {
-  //     setLoading(false);
-  //   }
-  // }, [token]);
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;

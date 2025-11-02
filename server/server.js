@@ -12,6 +12,7 @@ const server = http.createServer(app);
 export const io = new Server(server, {
   cors: {
     origin: "*",
+    methods: ["GET", "POST"],
   },
 });
 //store online users
@@ -26,12 +27,14 @@ io.on("connection", (socket) => {
   //emit online users to all connected clients
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-  socket.on("disconnect", (reason) => {
-    console.log("User disconnected", userId, reason);
+  socket.on("disconnect", () => {
+    console.log("User disconnected", userId);
     delete userSocketMap[userId];
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
+
+export const getReceiverSocketId = (receiverId) => userSocketMap[receiverId];
 
 //middlewears
 await connectDB();

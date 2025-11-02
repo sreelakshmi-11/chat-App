@@ -1,6 +1,6 @@
 import Message from "../models/Message.js";
 import User from "../models/User.js";
-import { userSocketMap } from "../server.js";
+import { getReceiverSocketId } from "../server.js";
 import { io } from "../server.js";
 
 export const getusersForSidebar = async (req, res) => {
@@ -40,7 +40,7 @@ export const getusersForSidebar = async (req, res) => {
 export const getMessages = async (req, res) => {
   try {
     const { id: selectedUserId } = req.params;
-    const receiverId = req.user._id;
+    const myId = req.user._id;
 
     const messages = await Message.find({
       $or: [
@@ -50,7 +50,7 @@ export const getMessages = async (req, res) => {
     });
 
     await Message.updateMany(
-      { senderId: selectedUserId, receiverId: myId },
+      { senderId: selectedUserId, receiverId: myId, seen: false },
       { seen: true }
     );
     res.json({ success: true, messages });
@@ -97,11 +97,13 @@ export const sendMessage = async (req, res) => {
       receiverId,
       text,
       image: imageUrl,
+      seen: false,
     });
     ///emit new message to the receivers socket
-    const receiverSocketId = userSocketMap[receiverId];
+    const receiverSocketId = getReceiverSocketId[receiverId];
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", newMessage);
+      console.log("📤 Emitted newMessage to:", receiverSocketId);
     }
 
     res.json({
