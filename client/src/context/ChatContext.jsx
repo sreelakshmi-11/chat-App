@@ -47,6 +47,8 @@ export const ChatProvider = ({ children }) => {
       if (data.success) {
         setMessages((prevMessages) => [...prevMessages, data.newMessage]);
       }
+
+      socket.emit("sendMessage", data.newMessage);
     } catch (error) {
       toast.error(error.message);
     }

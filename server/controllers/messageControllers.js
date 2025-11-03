@@ -1,6 +1,6 @@
 import Message from "../models/Message.js";
 import User from "../models/User.js";
-import { io } from "../server.js";
+import { io, userSocketMap } from "../server.js";
 import cloudinary from "../utils/cloudinary.js";
 
 export const getusersForSidebar = async (req, res) => {
@@ -86,10 +86,6 @@ export const sendMessage = async (req, res) => {
     const senderId = req.user._id;
 
     let imageUrl;
-    // if (image) {
-    //   const upload = await cloudinary.uploader.upload(image);
-    //   imageUrl = upload.secure_url;
-    // }
     if (image) {
       try {
         const upload = await cloudinary.uploader.upload(image);
@@ -107,16 +103,14 @@ export const sendMessage = async (req, res) => {
       image: imageUrl,
       seen: false,
     });
-    ///emit new message to the receivers socket
+
     const receiverSocketId = userSocketMap[receiverId];
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", newMessage);
-      console.log(" Emitted newMessage to:", receiverSocketId);
     }
     const senderSocketId = userSocketMap[senderId];
     if (senderSocketId) {
       io.to(senderSocketId).emit("newMessage", newMessage);
-      console.log("🟢 Emitted newMessage to sender:", senderSocketId);
     }
     res.json({
       success: true,
