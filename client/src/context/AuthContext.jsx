@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
     try {
       const { data } = await axios.get("/api/auth/check");
+
       if (data.success) {
         setAuthUser(data.user);
         connectSocket(data.user);
@@ -97,26 +98,15 @@ export const AuthProvider = ({ children }) => {
     newSocket.on("getOnlineUsers", (userIds) => {
       setOnlineUsers(userIds);
     });
-
-    newSocket.on("connect", () => {
-      console.log("Socket connected:", newSocket.id);
-    });
-
-    newSocket.on("disconnect", () => {
-      console.log(" Socket disconnected");
-    });
   };
 
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      checkAuth();
     } else {
       delete axios.defaults.headers.common["Authorization"];
     }
-  }, [token]);
-
-  useEffect(() => {
-    if (token) checkAuth();
   }, [token]);
 
   const value = {

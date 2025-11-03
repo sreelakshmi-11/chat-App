@@ -8,8 +8,14 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const { logout, onlineUsers } = useContext(AuthContext);
   const [input, setInput] = useState(false);
-  const { users, selectedUser, setSelectedUser, unseenMessages, getUsers } =
-    useContext(ChatContext);
+  const {
+    users,
+    selectedUser,
+    setSelectedUser,
+    unseenMessages,
+    setUnseenMessages,
+    getUsers,
+  } = useContext(ChatContext);
 
   const filteredData = input
     ? users.filter((user) =>
@@ -19,8 +25,6 @@ const Sidebar = () => {
   useEffect(() => {
     getUsers();
   }, [onlineUsers]);
-
-  console.log(unseenMessages);
 
   return (
     <div
@@ -65,7 +69,8 @@ const Sidebar = () => {
         {filteredData?.map((user, i) => (
           <div
             onClick={() => {
-              setSelectedUser(user);
+              setSelectedUser(user),
+                setUnseenMessages((prev) => ({ ...prev, [user._id]: 0 }));
             }}
             key={i}
             className={`relative flex items-center gap-2 p-2 pl-4 rounded cursor-pointer max-sm:text-sm  ${

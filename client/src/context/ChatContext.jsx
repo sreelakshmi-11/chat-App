@@ -53,7 +53,10 @@ export const ChatProvider = ({ children }) => {
   };
 
   const handleNewMessage = (newMessage) => {
-    if (selectedUser && newMessage.senderId === selectedUser._id) {
+    if (
+      (selectedUser && newMessage.senderId === selectedUser._id) ||
+      newMessage.receiverId === selectedUser._id
+    ) {
       newMessage.seen = true;
       setMessages((prev) => [...prev, newMessage]);
       axios.put(`/api/message/mark/${newMessage._id}`);
