@@ -20,7 +20,6 @@ export const userSocketMap = {};
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
-  console.log("user connected", userId);
 
   if (userId) userSocketMap[userId] = socket.id;
 
@@ -33,8 +32,6 @@ io.on("connection", (socket) => {
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
-
-export const getReceiverSocketId = (receiverId) => userSocketMap[receiverId];
 
 //middlewears
 await connectDB();

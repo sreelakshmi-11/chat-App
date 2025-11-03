@@ -1,6 +1,5 @@
 import Message from "../models/Message.js";
 import User from "../models/User.js";
-import { getReceiverSocketId } from "../server.js";
 import { io } from "../server.js";
 
 export const getusersForSidebar = async (req, res) => {
@@ -10,7 +9,6 @@ export const getusersForSidebar = async (req, res) => {
     const filteredUsers = await User.find({ _id: { $ne: userId } }).select(
       "-password"
     );
-    console.log("Filtered users:", filteredUsers);
 
     //count number of unseen messages
     const unseenMessages = {};
@@ -100,10 +98,10 @@ export const sendMessage = async (req, res) => {
       seen: false,
     });
     ///emit new message to the receivers socket
-    const receiverSocketId = getReceiverSocketId[receiverId];
+    const receiverSocketId = userSocketMap[receiverId];
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", newMessage);
-      console.log("📤 Emitted newMessage to:", receiverSocketId);
+      console.log(" Emitted newMessage to:", receiverSocketId);
     }
 
     res.json({

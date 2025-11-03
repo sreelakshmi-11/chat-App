@@ -52,63 +52,20 @@ export const ChatProvider = ({ children }) => {
     }
   };
 
-  // //subscribe to messages for selected user
-  // const subscribeToMessages = async () => {
-  //   if (!socket) return;
-
-  //   socket.on("newMessage", (newMessage) => {
-  //     if (selectedUser && newMessage.senderId === selectedUser._id) {
-  //       newMessage.seen = true;
-  //       setMessages((prevMessages) => [...prevMessages, newMessage]);
-  //       axios.put(`/api/message/mark/${newMessage._id}`);
-  //     } else {
-  //       setUnseenMessages((prevUnseenMessages) => ({
-  //         ...prevUnseenMessages,
-  //         [newMessage.senderId]: prevUnseenMessages[newMessage.senderId]
-  //           ? prevUnseenMessages[newMessage.senderId] + 1
-  //           : 1,
-  //       }));
-  //     }
-  //   });
-  // };
-
-  ///unsubscribe from messages for selected user
-  // const unsubscribeFromMessages = () => {
-  //   if (socket) socket.off("newMessage");
-  // };
-  // useEffect(() => {
-  //   if (!socket) return; // prevent null error
-
-  //   socket.on("connect", () => {
-  //     console.log("✅ Socket connected:", socket.id);
-  //   });
-
-  //   return () => socket.off("connect");
-  // }, [socket]);
-
-  // useEffect(() => {
-  //   subscribeToMessages();
-  //   return () => unsubscribeFromMessages();
-  // }, [socket, selectedUser]);
-
+  const handleNewMessage = (newMessage) => {
+    if (selectedUser && newMessage.senderId === selectedUser._id) {
+      newMessage.seen = true;
+      setMessages((prev) => [...prev, newMessage]);
+      axios.put(`/api/message/mark/${newMessage._id}`);
+    } else {
+      setUnseenMessages((prev) => ({
+        ...prev,
+        [newMessage.senderId]: (prev[newMessage.senderId] || 0) + 1,
+      }));
+    }
+  };
   useEffect(() => {
     if (!socket) return;
-
-    const handleNewMessage = (newMessage) => {
-      console.log("📩 Received new message:", newMessage);
-
-      if (selectedUser && newMessage.senderId === selectedUser._id) {
-        newMessage.seen = true;
-        setMessages((prev) => [...prev, newMessage]);
-        axios.put(`/api/message/mark/${newMessage._id}`);
-      } else {
-        // ✅ Increase unseen count properly
-        setUnseenMessages((prev) => ({
-          ...prev,
-          [newMessage.senderId]: (prev[newMessage.senderId] || 0) + 1,
-        }));
-      }
-    };
 
     socket.on("newMessage", handleNewMessage);
 
@@ -126,9 +83,7 @@ export const ChatProvider = ({ children }) => {
     }
   }, [selectedUser]);
 
-  useEffect(() => {
-    console.log("Updated unseen messages:", unseenMessages);
-  }, [unseenMessages]);
+  useEffect(() => {}, [unseenMessages]);
   const value = {
     users,
     messages,
