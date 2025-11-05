@@ -104,7 +104,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      checkAuth();
+      checkAuth().catch(() => {
+        localStorage.removeItem("token");
+        setToken(null);
+      });
     } else {
       delete axios.defaults.headers.common["Authorization"];
       setAuthUser(null);

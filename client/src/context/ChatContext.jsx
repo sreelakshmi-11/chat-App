@@ -46,10 +46,8 @@ export const ChatProvider = ({ children }) => {
       );
 
       if (data.success) {
-        setMessages((prevMessages) => [...prevMessages, data.newMessage]);
+        socket.emit("sendMessage", data.newMessage);
       }
-
-      socket.emit("sendMessage", data.newMessage);
     } catch (error) {
       toast.error(error.message);
     }
@@ -68,7 +66,11 @@ export const ChatProvider = ({ children }) => {
           newMessage.receiverId === selectedUser._id)
       ) {
         newMessage.seen = true;
-        setMessages((prev) => [...prev, newMessage]);
+        setMessages((prev) => {
+          const exists = prev.some((msg) => msg._id === newMessage._id);
+          if (exists) return prev;
+          return [...prev, newMessage];
+        });
         axios.put(`/api/message/mark/${newMessage._id}`);
       } else if (isForMe) {
         setUnseenMessages((prev) => ({

@@ -7,14 +7,14 @@ import { Toaster } from "react-hot-toast";
 import { AuthContext } from "./context/AuthContext";
 import { useContext } from "react";
 const App = () => {
-  const { authUser } = useContext(AuthContext);
+  const { authUser, token } = useContext(AuthContext);
   return (
     <div className="bg-[url('./src/assets/bgImage.svg')] bg-contain">
       <Toaster />
       <Routes>
         <Route
           path="/"
-          element={authUser ? <HomePage /> : <Navigate to="/login" />}
+          element={token && authUser ? <HomePage /> : <Navigate to="/login" />}
         ></Route>
         <Route
           path="/login"

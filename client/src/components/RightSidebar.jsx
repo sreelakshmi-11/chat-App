@@ -3,9 +3,9 @@ import assets from "../assets/assets";
 import { AuthContext } from "../context/AuthContext";
 import { ChatContext } from "../context/ChatContext";
 
-const RightSidebar = ({ selectedUser }) => {
+const RightSidebar = () => {
   const { logout, onlineUsers } = useContext(AuthContext);
-  const { messages } = useContext(ChatContext);
+  const { messages, selectedUser } = useContext(ChatContext);
   const media = messages?.filter((msg) => msg.image);
 
   return (
