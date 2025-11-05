@@ -44,7 +44,10 @@ app.use("/api/status", (req, res) => {
 app.use("/api/auth", userRouter);
 app.use("/api/message", messageRouter);
 
-const PORT = process.env.PORT || 8000;
-server.listen(PORT, () => {
-  console.log("server is running on port: " + PORT);
-});
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 8000;
+  server.listen(PORT, () => {
+    console.log("server is running on port: " + PORT);
+  });
+}
+export default server;
