@@ -1,7 +1,7 @@
 import React from "react";
 import Sidebar from "../components/Sidebar";
 import RightSidebar from "../components/RightSidebar";
-import ChatContainer from "../components/chatContainer";
+import ChatContainer from "../components/ChatContainer";
 import { useContext } from "react";
 import { ChatContext } from "../context/ChatContext";
 
