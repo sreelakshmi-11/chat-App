@@ -2,39 +2,34 @@ import React, { useContext, useState } from "react";
 import assets from "../assets/assets";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
 const LoginPage = () => {
   const [currentState, setCurrentState] = useState("Signup");
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [bio, setBio] = useState("");
   const [dataSubmitted, setdataSubmitted] = useState(false);
 
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
-  const onSubmitHandler = (e) => {
-    e.preventDefault();
+  const onSubmitHandler = (data) => {
     if (currentState === "Signup" && !dataSubmitted) {
       setdataSubmitted(true);
-
       return;
     }
-    login(currentState === "Signup" ? "signup" : "login", {
-      fullName,
-      email,
-      password,
-      bio,
-    });
+    login(currentState === "Signup" ? "signup" : "login", data);
     navigate("/");
   };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   return (
     <div className="min-h-screen bg-cover bg-center flex items-center justify-center  gap-8 md:justify-evenly max-sm:flex-col backdrop-blur-2xl">
       {/* ------------left--------------- */}
       <img src={assets.logo_big} alt="logo" className="w-[min(30vw,250px)]" />
       {/* ------------right--------------- */}
       <form
-        onSubmit={onSubmitHandler}
+        onSubmit={handleSubmit(onSubmitHandler)}
         className="border-2 bg-white/8 text-white border-gray-500 p-6 flex flex-col gap-6 rounded-lg shadow-lg "
       >
         <h2 className="font-medium text-2xl flex justify-between items-center">
@@ -53,10 +48,15 @@ const LoginPage = () => {
             type="text"
             className="p-2 border border-gray-500 rounded-md focus:outline-none"
             placeholder="Full Name"
-            required
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            {...register("fullName", {
+              required: "Full Name is required",
+            })}
           />
+        )}
+        {errors.fullName && (
+          <span className="text-red-500 text-sm">
+            {errors.fullName.message}
+          </span>
         )}
         {!dataSubmitted && (
           <div className="flex flex-col gap-6">
@@ -64,18 +64,28 @@ const LoginPage = () => {
               type="email"
               placeholder="Email"
               className="p-2 border border-gray-500 rounded-md focus:outline-none"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...register("email", {
+                required: "Email is required",
+              })}
             />
+            {errors.email && (
+              <span className="text-red-500 text-sm">
+                {errors.email.message}
+              </span>
+            )}
             <input
               type="password"
               placeholder="Password"
               className="p-2 border border-gray-500 rounded-md focus:outline-none"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              {...register("password", {
+                required: "Password is required",
+              })}
             />
+            {errors.password && (
+              <span className="text-red-500 text-sm">
+                {errors.password.message}
+              </span>
+            )}
           </div>
         )}
         {currentState === "Signup" && dataSubmitted && (
@@ -83,10 +93,13 @@ const LoginPage = () => {
             rows={4}
             className="p-2 border border-gray-500 rounded-md focus:outline-none"
             placeholder="Provide a short Bio..."
-            required
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
+            {...register("bio", {
+              required: "Bio is required",
+            })}
           ></textarea>
+        )}
+        {errors.bio && (
+          <span className="text-red-500 text-sm">{errors.bio.message}</span>
         )}
         <button type="submit" className="px-3 py-2 rounded-xl bg-[blue]">
           {currentState === "Signup" ? "Create Account" : "Login Now"}
