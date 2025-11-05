@@ -35,7 +35,7 @@ export const ChatProvider = ({ children }) => {
       toast.error(error.message);
     }
   };
-
+  console.log(messages);
   //function to send message to selected user
 
   const sendMessage = async (messageData) => {
