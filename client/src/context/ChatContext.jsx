@@ -49,7 +49,7 @@ export const ChatProvider = ({ children }) => {
         setMessages((prevMessages) => [...prevMessages, data.newMessage]);
       }
 
-      // socket.emit("sendMessage", data.newMessage);
+      socket.emit("sendMessage", data.newMessage);
     } catch (error) {
       toast.error(error.message);
     }
@@ -83,7 +83,7 @@ export const ChatProvider = ({ children }) => {
     return () => {
       socket.off("newMessage", handleNewMessage);
     };
-  }, [socket]); // ✅ only depends on socket, NOT selectedUser
+  }, [socket, selectedUser, authUser]);
 
   useEffect(() => {
     const loadMessages = async () => {
@@ -99,7 +99,6 @@ export const ChatProvider = ({ children }) => {
     loadMessages();
   }, [selectedUser]);
 
-  useEffect(() => {}, [unseenMessages]);
   const value = {
     users,
     messages,

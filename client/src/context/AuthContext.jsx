@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   const navigate = useNavigate();
-  //checking if user is authenticated and if so,set the user data andconnect the socket
+
   const checkAuth = async () => {
     try {
       const { data } = await axios.get("/api/auth/check");
@@ -27,10 +27,14 @@ export const AuthProvider = ({ children }) => {
         setAuthUser(data.user);
         connectSocket(data.user);
       } else {
-        toast.error(data.message);
+        localStorage.removeItem("token");
+        setToken(null);
+        setAuthUser(null);
       }
     } catch (error) {
-      toast.error(error.message);
+      localStorage.removeItem("token");
+      setToken(null);
+      setAuthUser(null);
     }
   };
   //login
@@ -41,7 +45,7 @@ export const AuthProvider = ({ children }) => {
       if (data.success) {
         setAuthUser(data.userData);
         connectSocket(data.userData);
-        axios.defaults.headers.common["authorization"] = `Bearer ${data.token}`;
+        axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
         setToken(data.token);
         localStorage.setItem("token", data.token);
         toast.success(data.message);
@@ -59,10 +63,8 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setAuthUser(null);
     setOnlineUsers([]);
-    axios.defaults.headers.common["authorization"] = null;
+    delete axios.defaults.headers.common["Authorization"];
     toast.success("Logged out Successfully");
-    socket.disconnect();
-    navigate("/login");
   };
   //update profile
 
@@ -99,13 +101,13 @@ export const AuthProvider = ({ children }) => {
       setOnlineUsers(userIds);
     });
   };
-
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       checkAuth();
     } else {
       delete axios.defaults.headers.common["Authorization"];
+      setAuthUser(null);
     }
   }, [token]);
 
