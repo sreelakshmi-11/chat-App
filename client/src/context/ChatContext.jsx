@@ -55,29 +55,35 @@ export const ChatProvider = ({ children }) => {
     }
   };
 
-  const handleNewMessage = (newMessage) => {
-    const isForMe = newMessage.receiverId === authUser._id;
-    if (
-      (selectedUser && newMessage.senderId === selectedUser._id) ||
-      newMessage.receiverId === selectedUser._id
-    ) {
-      newMessage.seen = true;
-      setMessages((prev) => [...prev, newMessage]);
-      axios.put(`/api/message/mark/${newMessage._id}`);
-    } else if (isForMe) {
-      setUnseenMessages((prev) => ({
-        ...prev,
-        [newMessage.senderId]: (prev[newMessage.senderId] || 0) + 1,
-      }));
-    }
-  };
   useEffect(() => {
     if (!socket) return;
+
+    const handleNewMessage = (newMessage) => {
+      const isForMe = newMessage.receiverId === authUser._id;
+
+      // message between logged-in user and selected user
+      if (
+        selectedUser &&
+        (newMessage.senderId === selectedUser._id ||
+          newMessage.receiverId === selectedUser._id)
+      ) {
+        newMessage.seen = true;
+        setMessages((prev) => [...prev, newMessage]);
+        axios.put(`/api/message/mark/${newMessage._id}`);
+      } else if (isForMe) {
+        setUnseenMessages((prev) => ({
+          ...prev,
+          [newMessage.senderId]: (prev[newMessage.senderId] || 0) + 1,
+        }));
+      }
+    };
+
     socket.on("newMessage", handleNewMessage);
+
     return () => {
       socket.off("newMessage", handleNewMessage);
     };
-  }, [socket, selectedUser]);
+  }, [socket]); // ✅ only depends on socket, NOT selectedUser
 
   useEffect(() => {
     const loadMessages = async () => {

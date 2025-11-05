@@ -34,11 +34,6 @@ const ChatContainer = () => {
     };
     reader.readAsDataURL(file);
   };
-  useEffect(() => {
-    if (selectedUser) {
-      getMessages(selectedUser._id);
-    }
-  }, [selectedUser]);
 
   useEffect(() => {
     if (scrollEnd.current && messages.length > 0) {
